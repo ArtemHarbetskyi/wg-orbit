@@ -1,0 +1,39 @@
+# WireGuard Orbit Client Configuration
+
+client:
+  name: "client-1"
+  config_file: "/etc/wg-orbit/client.conf"
+  
+server:
+  url: "https://wg-orbit.example.com:8080"
+  # For development/testing with self-signed certificates
+  # insecure_skip_verify: true
+  
+wireguard:
+  interface: "wg0"
+  # Optional: path to store private key
+  # private_key_file: "/etc/wg-orbit/client.key"
+  
+auth:
+  # Token file will be created after enrollment
+  token_file: "/etc/wg-orbit/token"
+  # Auto-refresh token before expiration
+  auto_refresh: true
+  refresh_interval: "12h"
+  
+logging:
+  level: "info"  # debug, info, warn, error
+  format: "text"  # json or text
+  file: "/var/log/wg-orbit/client.log"
+  
+# Connection settings
+connection:
+  # Retry settings for server connection
+  retry_attempts: 3
+  retry_delay: "5s"
+  
+  # Health check settings
+  health_check_interval: "30s"
+  
+  # Reconnect if no handshake for this duration
+  max_handshake_age: "3m"

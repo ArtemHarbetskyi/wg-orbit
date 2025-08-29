@@ -1,0 +1,165 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the comment below to include it)
+# vendor/
+
+# Go workspace file
+go.work
+
+# Build artifacts
+bin/
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+coverage.out
+coverage.html
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Configuration files with secrets
+*.env
+.env.local
+.env.*.local
+configs/*.local.yaml
+configs/*.secret.yaml
+
+# WireGuard keys and configs
+*.key
+*.pub
+*.conf
+wg*.conf
+privatekey
+publickey
+presharedkey
+
+# Docker volumes
+data/
+postgres_data/
+wg_orbit_data/
+wg_orbit_logs/
+prometheus_data/
+grafana_data/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Air live reload
+.air.toml
+tmp/
+
+# Test artifacts
+testdata/output/
+*.cover
+
+# Local development
+local/
+dev/
+
+# Certificates and keys
+*.pem
+*.crt
+*.key
+*.p12
+*.pfx
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.tar
+*.tar.gz
+*.zip
+*.rar
+
+# Node modules (if using any JS tools)
+node_modules/
+
+# Python (if using any Python tools)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local configuration overrides
+config.local.yaml
+server.local.yaml
+client.local.yaml
+
+# JWT secrets and tokens
+jwt_secret
+token_*
+*.token
+
+# Prometheus data
+prometheus.yml.local
+
+# Grafana data
+grafana.ini.local
+
+# Docker Compose overrides
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Kubernetes secrets
+secrets/
+*.secret.yaml
+
+# Helm charts values
+values.local.yaml
+values.*.yaml
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+
+# Local scripts
+scripts/local/
+run_local.sh
+test_local.sh

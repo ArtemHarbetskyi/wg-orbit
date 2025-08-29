@@ -1,0 +1,50 @@
+# WireGuard Orbit Server Configuration
+
+server:
+  host: "0.0.0.0"
+  port: 8080
+  # TLS configuration (optional)
+  # tls_cert: "/etc/wg-orbit/server.crt"
+  # tls_key: "/etc/wg-orbit/server.key"
+  secret_key: "your-secret-key-change-this-in-production"
+
+wireguard:
+  interface: "wg0"
+  listen_port: 51820
+  address: "10.0.0.1/24"
+  # Optional: path to existing private key
+  # private_key_file: "/etc/wg-orbit/server.key"
+
+storage:
+  type: "sqlite"  # sqlite or postgres
+  database: "/var/lib/wg-orbit/wg-orbit.db"
+  
+  # PostgreSQL configuration (if type is postgres)
+  # host: "localhost"
+  # port: 5432
+  # username: "wg_orbit"
+  # password: "password"
+  # ssl_mode: "require"
+
+ipam:
+  network: "10.0.0.0/24"
+  start_ip: "10.0.0.10"
+  end_ip: "10.0.0.254"
+  dns_servers:
+    - "8.8.8.8"
+    - "8.8.4.4"
+
+auth:
+  token_duration: "24h"
+  enrollment_token_duration: "1h"
+  
+logging:
+  level: "info"  # debug, info, warn, error
+  format: "json"  # json or text
+  file: "/var/log/wg-orbit/server.log"
+
+# Optional: Prometheus metrics
+metrics:
+  enabled: false
+  port: 9090
+  path: "/metrics"

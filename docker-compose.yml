@@ -1,0 +1,141 @@
+version: '3.8'
+
+services:
+  # PostgreSQL база даних для продакшн-тестування
+  postgres:
+    image: postgres:15-alpine
+    container_name: wg-orbit-postgres
+    environment:
+      POSTGRES_DB: wg_orbit
+      POSTGRES_USER: wg_orbit
+      POSTGRES_PASSWORD: wg_orbit_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - wg-orbit-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wg_orbit"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # WireGuard Orbit Server
+  wg-orbit-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wg-orbit-server
+    privileged: true  # Необхідно для роботи з WireGuard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - WG_ORBIT_CONFIG=/etc/wg-orbit/server.yaml
+    volumes:
+      - ./configs/server.yaml:/etc/wg-orbit/server.yaml:ro
+      - wg_orbit_data:/var/lib/wg-orbit
+      - wg_orbit_logs:/var/log/wg-orbit
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - "8080:8080"     # REST API
+      - "51820:51820/udp" # WireGuard
+    networks:
+      - wg-orbit-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    command: [
+      "wg-orbit-server", "run", 
+      "--config", "/etc/wg-orbit/server.yaml"
+    ]
+
+  # WireGuard Orbit Client (для тестування)
+  wg-orbit-client:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wg-orbit-client
+    privileged: true
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - WG_ORBIT_CONFIG=/etc/wg-orbit/client.yaml
+    volumes:
+      - ./configs/client.yaml:/etc/wg-orbit/client.yaml:ro
+      - wg_orbit_client_data:/var/lib/wg-orbit
+      - wg_orbit_client_logs:/var/log/wg-orbit
+      - /lib/modules:/lib/modules:ro
+    networks:
+      - wg-orbit-net
+    depends_on:
+      - wg-orbit-server
+    restart: "no"  # Не автоматично перезапускати клієнт
+    entrypoint: ["/bin/sh"]
+    command: ["-c", "sleep infinity"]  # Залишаємо контейнер запущеним для ручного тестування
+
+  # Adminer для управління базою даних (опціонально)
+  adminer:
+    image: adminer:latest
+    container_name: wg-orbit-adminer
+    ports:
+      - "8081:8080"
+    networks:
+      - wg-orbit-net
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  # Prometheus для моніторингу (опціонально)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: wg-orbit-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    networks:
+      - wg-orbit-net
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    restart: unless-stopped
+
+  # Grafana для візуалізації метрик (опціонально)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: wg-orbit-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+    networks:
+      - wg-orbit-net
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  wg_orbit_data:
+  wg_orbit_logs:
+  wg_orbit_client_data:
+  wg_orbit_client_logs:
+  prometheus_data:
+  grafana_data:
+
+networks:
+  wg-orbit-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
