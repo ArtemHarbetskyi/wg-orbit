@@ -1,5 +1,5 @@
 # Multi-stage build для оптимізації розміру образу
-FROM golang:1.21-alpine AS builder
+FROM golang:1.23-alpine AS builder
 
 # Встановлюємо необхідні пакети для збірки
 RUN apk add --no-cache git gcc musl-dev
@@ -15,8 +15,8 @@ RUN go mod download
 COPY . .
 
 # Збираємо бінарники
-RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o wg-orbit-server ./cmd/server
-RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o wg-orbit-client ./cmd/client
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o wg-orbit-server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o wg-orbit-client ./cmd/client
 
 # Фінальний образ
 FROM alpine:latest
