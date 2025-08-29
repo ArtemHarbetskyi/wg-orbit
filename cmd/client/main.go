@@ -101,9 +101,15 @@ func init() {
 	enrollCmd.Flags().StringP("server", "s", "", "WireGuard Orbit server URL (required)")
 	enrollCmd.Flags().StringP("token", "t", "", "Enrollment token (required)")
 	enrollCmd.Flags().StringP("name", "n", "", "Client name (required)")
-	enrollCmd.MarkFlagRequired("server")
-	enrollCmd.MarkFlagRequired("token")
-	enrollCmd.MarkFlagRequired("name")
+	if err := enrollCmd.MarkFlagRequired("server"); err != nil {
+		log.Fatalf("Failed to mark server flag as required: %v", err)
+	}
+	if err := enrollCmd.MarkFlagRequired("token"); err != nil {
+		log.Fatalf("Failed to mark token flag as required: %v", err)
+	}
+	if err := enrollCmd.MarkFlagRequired("name"); err != nil {
+		log.Fatalf("Failed to mark name flag as required: %v", err)
+	}
 	
 	// Up command flags
 	upCmd.Flags().StringP("config", "c", "/etc/wg-orbit/client.conf", "WireGuard configuration file")

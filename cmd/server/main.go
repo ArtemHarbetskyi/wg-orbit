@@ -49,7 +49,9 @@ var runCmd = &cobra.Command{
 		// Створюємо конфігурацію сервера
 		config := server.DefaultConfig()
 		if port != "" {
-			fmt.Sscanf(port, "%d", &config.Port)
+			if _, err := fmt.Sscanf(port, "%d", &config.Port); err != nil {
+				log.Fatalf("Invalid port format: %v", err)
+			}
 		}
 		
 		// Створюємо сервер
