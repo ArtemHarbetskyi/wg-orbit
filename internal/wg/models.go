@@ -10,17 +10,17 @@ import (
 
 // Peer представляє WireGuard peer'а
 type Peer struct {
-	ID          uuid.UUID `json:"id" db:"id"`
-	Name        string    `json:"name" db:"name"`
-	PublicKey   string    `json:"public_key" db:"public_key"`
-	PrivateKey  string    `json:"-" db:"private_key"` // Не експортується в JSON
-	AllowedIPs  []string  `json:"allowed_ips" db:"allowed_ips"`
-	Endpoint    string    `json:"endpoint,omitempty" db:"endpoint"`
-	PresharedKey string   `json:"preshared_key,omitempty" db:"preshared_key"`
-	CreatedAt   time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
-	LastSeen    *time.Time `json:"last_seen,omitempty" db:"last_seen"`
-	IsActive    bool      `json:"is_active" db:"is_active"`
+	ID           uuid.UUID  `json:"id" db:"id"`
+	Name         string     `json:"name" db:"name"`
+	PublicKey    string     `json:"public_key" db:"public_key"`
+	PrivateKey   string     `json:"-" db:"private_key"` // Не експортується в JSON
+	AllowedIPs   []string   `json:"allowed_ips" db:"allowed_ips"`
+	Endpoint     string     `json:"endpoint,omitempty" db:"endpoint"`
+	PresharedKey string     `json:"preshared_key,omitempty" db:"preshared_key"`
+	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time  `json:"updated_at" db:"updated_at"`
+	LastSeen     *time.Time `json:"last_seen,omitempty" db:"last_seen"`
+	IsActive     bool       `json:"is_active" db:"is_active"`
 }
 
 // Interface представляє WireGuard інтерфейс
@@ -63,10 +63,10 @@ type ServerPeer struct {
 
 // HandshakeInfo представляє інформацію про handshake
 type HandshakeInfo struct {
-	PeerID       uuid.UUID `json:"peer_id"`
+	PeerID        uuid.UUID `json:"peer_id"`
 	LastHandshake time.Time `json:"last_handshake"`
-	RxBytes      int64     `json:"rx_bytes"`
-	TxBytes      int64     `json:"tx_bytes"`
+	RxBytes       int64     `json:"rx_bytes"`
+	TxBytes       int64     `json:"tx_bytes"`
 }
 
 // IsOnline перевіряє, чи peer онлайн на основі часу останнього handshake
@@ -79,9 +79,9 @@ func (h *HandshakeInfo) IsOnline(maxAge time.Duration) bool {
 
 // IPPool представляє пул IP адрес
 type IPPool struct {
-	Network   *net.IPNet `json:"network"`
+	Network   *net.IPNet      `json:"network"`
 	Allocated map[string]bool `json:"allocated"`
-	NextIP    net.IP     `json:"next_ip"`
+	NextIP    net.IP          `json:"next_ip"`
 }
 
 // NewIPPool створює новий пул IP адрес
@@ -90,7 +90,7 @@ func NewIPPool(cidr string) (*IPPool, error) {
 	if err != nil {
 		return nil, fmt.Errorf("invalid CIDR: %w", err)
 	}
-	
+
 	return &IPPool{
 		Network:   network,
 		Allocated: make(map[string]bool),
@@ -134,7 +134,7 @@ func NewPeer(name string) (*Peer, error) {
 	if name == "" {
 		return nil, fmt.Errorf("peer name cannot be empty")
 	}
-	
+
 	privateKey, publicKey, err := GenerateKeyPair()
 	if err != nil {
 		return nil, err
@@ -155,26 +155,26 @@ func NewPeer(name string) (*Peer, error) {
 func (c *ClientConfig) ToWireGuardConfig() string {
 	config := "[Interface]\n"
 	config += "PrivateKey = " + c.Interface.PrivateKey + "\n"
-	
+
 	for _, addr := range c.Interface.Address {
 		config += "Address = " + addr + "\n"
 	}
-	
+
 	for _, dns := range c.Interface.DNS {
 		config += "DNS = " + dns + "\n"
 	}
-	
+
 	config += "\n[Peer]\n"
 	config += "PublicKey = " + c.Peer.PublicKey + "\n"
 	config += "Endpoint = " + c.Peer.Endpoint + "\n"
-	
+
 	for _, allowedIP := range c.Peer.AllowedIPs {
 		config += "AllowedIPs = " + allowedIP + "\n"
 	}
-	
+
 	if c.Peer.PresharedKey != "" {
 		config += "PresharedKey = " + c.Peer.PresharedKey + "\n"
 	}
-	
+
 	return config
 }

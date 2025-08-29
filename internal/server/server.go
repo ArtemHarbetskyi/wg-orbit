@@ -17,23 +17,23 @@ import (
 
 // Server представляє WireGuard Orbit сервер
 type Server struct {
-	storage     storage.Storage
-	tokenMgr    *auth.TokenManager
-	restServer  *rest.Server
+	storage      storage.Storage
+	tokenMgr     *auth.TokenManager
+	restServer   *rest.Server
 	interfaceMgr *InterfaceManager
-	config      *Config
+	config       *Config
 }
 
 // Config представляє конфігурацію сервера
 type Config struct {
-	Host         string `yaml:"host" json:"host"`
-	Port         int    `yaml:"port" json:"port"`
-	Interface    string `yaml:"interface" json:"interface"`
-	StorageType  string `yaml:"storage_type" json:"storage_type"`
+	Host          string         `yaml:"host" json:"host"`
+	Port          int            `yaml:"port" json:"port"`
+	Interface     string         `yaml:"interface" json:"interface"`
+	StorageType   string         `yaml:"storage_type" json:"storage_type"`
 	StorageConfig storage.Config `yaml:"storage" json:"storage"`
-	JWTSecret    string `yaml:"jwt_secret" json:"jwt_secret"`
-	TokenTTL     time.Duration `yaml:"token_ttl" json:"token_ttl"`
-	IPAMNetwork  string `yaml:"ipam_network" json:"ipam_network"`
+	JWTSecret     string         `yaml:"jwt_secret" json:"jwt_secret"`
+	TokenTTL      time.Duration  `yaml:"token_ttl" json:"token_ttl"`
+	IPAMNetwork   string         `yaml:"ipam_network" json:"ipam_network"`
 }
 
 // DefaultConfig повертає конфігурацію за замовчуванням
@@ -89,7 +89,7 @@ func NewServer(config *Config) (*Server, error) {
 // Initialize ініціалізує WireGuard інтерфейс
 func (s *Server) Initialize() error {
 	log.Printf("Initializing WireGuard interface: %s", s.config.Interface)
-	
+
 	// Створюємо інтерфейс якщо він не існує
 	if err := s.interfaceMgr.CreateInterface(); err != nil {
 		return fmt.Errorf("failed to create interface: %w", err)

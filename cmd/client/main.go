@@ -5,8 +5,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/spf13/cobra"
 	"github.com/artem/wg-orbit/internal/client"
+	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
@@ -22,16 +22,16 @@ var enrollCmd = &cobra.Command{
 		server, _ := cmd.Flags().GetString("server")
 		token, _ := cmd.Flags().GetString("token")
 		name, _ := cmd.Flags().GetString("name")
-		
+
 		// Створюємо клієнт
 		config := client.DefaultConfig()
 		cli := client.NewClient(config)
-		
+
 		// Реєструємо клієнта
 		if err := cli.Enroll(server, token, name); err != nil {
 			log.Fatalf("Failed to enroll client: %v", err)
 		}
-		
+
 		fmt.Printf("Client '%s' enrolled successfully with server %s\n", name, server)
 	},
 }
@@ -43,12 +43,12 @@ var upCmd = &cobra.Command{
 		// Створюємо клієнт
 		config := client.DefaultConfig()
 		cli := client.NewClient(config)
-		
+
 		// Завантажуємо існуючу конфігурацію
 		if err := cli.LoadConfig(); err != nil {
 			log.Fatalf("Failed to load config: %v. Run 'enroll' first", err)
 		}
-		
+
 		// Піднімаємо з'єднання
 		if err := cli.Up(); err != nil {
 			log.Fatalf("Failed to bring up connection: %v", err)
@@ -63,12 +63,12 @@ var downCmd = &cobra.Command{
 		// Створюємо клієнт
 		config := client.DefaultConfig()
 		cli := client.NewClient(config)
-		
+
 		// Завантажуємо існуючу конфігурацію
 		if err := cli.LoadConfig(); err != nil {
 			log.Fatalf("Failed to load config: %v", err)
 		}
-		
+
 		// Опускаємо з'єднання
 		if err := cli.Down(); err != nil {
 			log.Fatalf("Failed to bring down connection: %v", err)
@@ -83,12 +83,12 @@ var statusCmd = &cobra.Command{
 		// Створюємо клієнт
 		config := client.DefaultConfig()
 		cli := client.NewClient(config)
-		
+
 		// Завантажуємо існуючу конфігурацію
 		if err := cli.LoadConfig(); err != nil {
 			log.Fatalf("Failed to load config: %v", err)
 		}
-		
+
 		// Показуємо статус
 		if err := cli.Status(); err != nil {
 			log.Fatalf("Failed to get status: %v", err)
@@ -110,13 +110,13 @@ func init() {
 	if err := enrollCmd.MarkFlagRequired("name"); err != nil {
 		log.Fatalf("Failed to mark name flag as required: %v", err)
 	}
-	
+
 	// Up command flags
 	upCmd.Flags().StringP("config", "c", "/etc/wg-orbit/client.conf", "WireGuard configuration file")
-	
+
 	// Down command flags
 	downCmd.Flags().StringP("interface", "i", "wg0", "WireGuard interface name")
-	
+
 	// Add commands to root
 	rootCmd.AddCommand(enrollCmd, upCmd, downCmd, statusCmd)
 }

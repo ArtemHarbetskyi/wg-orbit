@@ -15,18 +15,18 @@ import (
 
 // Client представляє WireGuard Orbit клієнт
 type Client struct {
-	config *Config
+	config     *Config
 	httpClient *http.Client
 }
 
 // Config містить конфігурацію клієнта
 type Config struct {
-	ServerURL    string `json:"server_url"`
-	Token        string `json:"token"`
-	ClientName   string `json:"client_name"`
-	ConfigPath   string `json:"config_path"`
-	Interface    string `json:"interface"`
-	TokenExpiry  time.Time `json:"token_expiry"`
+	ServerURL   string    `json:"server_url"`
+	Token       string    `json:"token"`
+	ClientName  string    `json:"client_name"`
+	ConfigPath  string    `json:"config_path"`
+	Interface   string    `json:"interface"`
+	TokenExpiry time.Time `json:"token_expiry"`
 }
 
 // EnrollRequest представляє запит на реєстрацію
@@ -37,11 +37,11 @@ type EnrollRequest struct {
 
 // EnrollResponse представляє відповідь на реєстрацію
 type EnrollResponse struct {
-	Success       bool              `json:"success"`
-	Message       string            `json:"message"`
-	ClientConfig  *wg.ClientConfig  `json:"client_config,omitempty"`
-	RefreshToken  string            `json:"refresh_token,omitempty"`
-	TokenExpiry   time.Time         `json:"token_expiry,omitempty"`
+	Success      bool             `json:"success"`
+	Message      string           `json:"message"`
+	ClientConfig *wg.ClientConfig `json:"client_config,omitempty"`
+	RefreshToken string           `json:"refresh_token,omitempty"`
+	TokenExpiry  time.Time        `json:"token_expiry,omitempty"`
 }
 
 // DefaultConfig повертає конфігурацію за замовчуванням
@@ -145,7 +145,7 @@ func (c *Client) Up() error {
 	// Піднімаємо інтерфейс за допомогою wg-quick
 	cmd := fmt.Sprintf("sudo wg-quick up %s", configPath)
 	fmt.Printf("Executing: %s\n", cmd)
-	
+
 	// TODO: Виконати команду через os/exec
 	fmt.Println("WireGuard interface brought up successfully")
 	return nil
@@ -156,7 +156,7 @@ func (c *Client) Down() error {
 	configPath := c.getWireGuardConfigPath()
 	cmd := fmt.Sprintf("sudo wg-quick down %s", configPath)
 	fmt.Printf("Executing: %s\n", cmd)
-	
+
 	// TODO: Виконати команду через os/exec
 	fmt.Println("WireGuard interface brought down successfully")
 	return nil
@@ -166,7 +166,7 @@ func (c *Client) Down() error {
 func (c *Client) Status() error {
 	cmd := fmt.Sprintf("sudo wg show %s", c.config.Interface)
 	fmt.Printf("Executing: %s\n", cmd)
-	
+
 	// TODO: Виконати команду через os/exec та парсити вивід
 	fmt.Println("WireGuard status retrieved successfully")
 	return nil
@@ -176,7 +176,7 @@ func (c *Client) Status() error {
 func (c *Client) RefreshToken() error {
 	req := map[string]string{
 		"refresh_token": c.config.Token,
-		"client_name":  c.config.ClientName,
+		"client_name":   c.config.ClientName,
 	}
 
 	reqBody, err := json.Marshal(req)
@@ -253,7 +253,7 @@ func (c *Client) LoadConfig() error {
 func (c *Client) SaveWireGuardConfig(config *wg.ClientConfig) error {
 	configPath := c.getWireGuardConfigPath()
 	dir := filepath.Dir(configPath)
-	
+
 	// Створюємо директорію, якщо не існує
 	if err := os.MkdirAll(dir, 0700); err != nil {
 		return fmt.Errorf("failed to create config directory: %w", err)
@@ -261,7 +261,7 @@ func (c *Client) SaveWireGuardConfig(config *wg.ClientConfig) error {
 
 	// Генеруємо WireGuard конфігурацію
 	wgConfig := config.ToWireGuardConfig()
-	
+
 	// Зберігаємо конфігурацію
 	return os.WriteFile(configPath, []byte(wgConfig), 0600)
 }

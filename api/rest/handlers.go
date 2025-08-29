@@ -265,9 +265,9 @@ func (s *Server) handleUpdatePeer(c *gin.Context) {
 	}
 
 	var req struct {
-		Name      *string  `json:"name"`
-		IsActive  *bool    `json:"is_active"`
-		Endpoint  *string  `json:"endpoint"`
+		Name     *string `json:"name"`
+		IsActive *bool   `json:"is_active"`
+		Endpoint *string `json:"endpoint"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -353,7 +353,7 @@ func (s *Server) handleGetConfig(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"config":     clientConfig,
+		"config":    clientConfig,
 		"config_wg": clientConfig.ToWireGuardConfig(),
 	})
 }

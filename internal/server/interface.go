@@ -72,7 +72,7 @@ func (im *InterfaceManager) CreateInterface() error {
 	networkIP := im.ipPool.Network.IP.String()
 	mask, _ := im.ipPool.Network.Mask.Size()
 	interfaceAddr := fmt.Sprintf("%s/%d", networkIP, mask)
-	
+
 	cmd = exec.Command("ip", "addr", "add", interfaceAddr, "dev", im.interfaceName)
 	if err := cmd.Run(); err != nil {
 		return fmt.Errorf("failed to set interface address: %w", err)
