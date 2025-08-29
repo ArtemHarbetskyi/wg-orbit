@@ -145,13 +145,13 @@ jobs:
         mkdir -p dist
         
         # Server
-        CGO_ENABLED=1 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
+        CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
           go build -ldflags "${LDFLAGS}" \
           -o dist/wg-orbit-server-${{ matrix.os }}-${{ matrix.arch }} \
           ./cmd/server
         
         # Client
-        CGO_ENABLED=1 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
+        CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
           go build -ldflags "${LDFLAGS}" \
           -o dist/wg-orbit-client-${{ matrix.os }}-${{ matrix.arch }} \
           ./cmd/client
