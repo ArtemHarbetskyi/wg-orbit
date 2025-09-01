@@ -68,6 +68,20 @@ make docker
 
 ### Встановлення за операційними системами:
 
+#### RPi:
+
+```bash
+wget https://go.dev/dl/go1.22.6.linux-arm64.tar.gz
+sudo rm -rf /usr/local/go
+sudo tar -C /usr/local -xzf go1.22.6.linux-arm64.tar.gz
+```
+```bash
+export PATH=$PATH:/usr/local/go/bin
+```
+```bash
+source ~/.bashrc
+```
+
 #### Ubuntu/Debian:
 ```bash
 sudo apt update
