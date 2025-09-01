@@ -27,12 +27,15 @@ type Config struct {
 	ConfigPath  string    `json:"config_path"`
 	Interface   string    `json:"interface"`
 	TokenExpiry time.Time `json:"token_expiry"`
+	PrivateKey  string    `json:"private_key"`
+	PublicKey   string    `json:"public_key"`
 }
 
 // EnrollRequest представляє запит на реєстрацію
 type EnrollRequest struct {
 	ClientName string `json:"client_name"`
 	Token      string `json:"token"`
+	PublicKey  string `json:"public_key"`
 }
 
 // EnrollResponse представляє відповідь на реєстрацію
@@ -69,10 +72,21 @@ func (c *Client) Enroll(serverURL, token, clientName string) error {
 	c.config.Token = token
 	c.config.ClientName = clientName
 
+	// Генеруємо ключову пару WireGuard
+	privateKey, publicKey, err := wg.GenerateKeyPair()
+	if err != nil {
+		return fmt.Errorf("failed to generate key pair: %w", err)
+	}
+
+	// Зберігаємо ключі в конфігурації
+	c.config.PrivateKey = privateKey
+	c.config.PublicKey = publicKey
+
 	// Створюємо запит на реєстрацію
 	req := EnrollRequest{
 		ClientName: clientName,
 		Token:      token,
+		PublicKey:  publicKey,
 	}
 
 	reqBody, err := json.Marshal(req)

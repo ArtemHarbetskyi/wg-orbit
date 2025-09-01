@@ -39,6 +39,8 @@ services:
       - wg_orbit_data:/var/lib/wg-orbit
       - wg_orbit_logs:/var/log/wg-orbit
       - /lib/modules:/lib/modules:ro
+    devices:
+      - /dev/net/tun:/dev/net/tun
     ports:
       - "8080:8080"     # REST API
       - "51820:51820/udp" # WireGuard
@@ -69,6 +71,8 @@ services:
       - wg_orbit_client_data:/var/lib/wg-orbit
       - wg_orbit_client_logs:/var/log/wg-orbit
       - /lib/modules:/lib/modules:ro
+    devices:
+      - /dev/net/tun:/dev/net/tun
     networks:
       - wg-orbit-net
     depends_on:

@@ -189,3 +189,23 @@ func (s *Server) GenerateToken(username string) (string, error) {
 	log.Printf("Token generated for user %s", username)
 	return token, nil
 }
+
+// GenerateEnrollmentToken генерує enrollment токен для користувача
+func (s *Server) GenerateEnrollmentToken(username string) (string, error) {
+	log.Printf("Generating enrollment token for user: %s", username)
+
+	// Перевіряємо, чи існує користувач
+	_, err := s.storage.GetPeerByName(username)
+	if err != nil {
+		return "", fmt.Errorf("user not found: %w", err)
+	}
+
+	// Генеруємо enrollment токен
+	token, err := s.tokenMgr.GenerateEnrollmentToken(username, 1*time.Hour)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate enrollment token: %w", err)
+	}
+
+	log.Printf("Enrollment token generated for user %s", username)
+	return token, nil
+}

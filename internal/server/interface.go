@@ -49,6 +49,11 @@ func (im *InterfaceManager) CreateInterface() error {
 		return fmt.Errorf("interface %s already exists", im.interfaceName)
 	}
 
+	// Спочатку перевіряємо, чи доступний WireGuard модуль
+	if !im.isWireGuardAvailable() {
+		return fmt.Errorf("WireGuard kernel module is not available. This is common on macOS Docker Desktop. For development, consider using Linux VM or native Linux")
+	}
+
 	// Створюємо інтерфейс
 	cmd := exec.Command("ip", "link", "add", "dev", im.interfaceName, "type", "wireguard")
 	if err := cmd.Run(); err != nil {
@@ -91,6 +96,28 @@ func (im *InterfaceManager) CreateInterface() error {
 func (im *InterfaceManager) interfaceExists() bool {
 	cmd := exec.Command("ip", "link", "show", im.interfaceName)
 	return cmd.Run() == nil
+}
+
+// isWireGuardAvailable перевіряє, чи доступний WireGuard модуль
+func (im *InterfaceManager) isWireGuardAvailable() bool {
+	// Спробуємо завантажити модуль
+	cmd := exec.Command("modprobe", "wireguard")
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+
+	// Перевіряємо, чи можемо створити тестовий інтерфейс
+	testInterface := "wg-test-" + im.interfaceName
+	cmd = exec.Command("ip", "link", "add", "dev", testInterface, "type", "wireguard")
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+
+	// Видаляємо тестовий інтерфейс
+	cmd = exec.Command("ip", "link", "del", "dev", testInterface)
+	cmd.Run() // Ігноруємо помилку видалення
+
+	return true
 }
 
 // AllocateIP виділяє нову IP адресу
