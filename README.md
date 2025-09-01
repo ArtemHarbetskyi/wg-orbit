@@ -69,7 +69,7 @@ make docker
 
 ### Встановлення за операційними системами:
 
-#### RPi:
+#### ⚠️ RPi:
 
 ```bash
 wget https://go.dev/dl/go1.22.6.linux-arm64.tar.gz
