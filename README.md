@@ -200,6 +200,22 @@ make docker-run
 make docker-stop
 ```
 
+### Нативна збірка
+
+```bash
+# Збірка для всіх архітектур
+./scripts/build-native.sh
+
+# Тестування multi-arch Docker збірки
+./scripts/test-multiarch.sh
+
+# Розгортання на цільовій системі
+./scripts/deploy-native.sh --install --config --service
+
+# Перевірка доступних бінарників
+ls -la bin/wg-orbit-*
+```
+
 ## 🔧 Підтримка ARM пристроїв
 
 wg-orbit повністю підтримує ARM архітектури для розгортання на мікрокомп'ютерах:
@@ -223,7 +239,11 @@ docker run -d \
   -v wg-orbit-data:/etc/wg-orbit \
   ghcr.io/artem/wg-orbit:latest
 
-# Нативна збірка
+# Нативна збірка (локально)
+./scripts/build-native.sh              # Збірка для всіх архітектур
+./scripts/deploy-native.sh --install   # Автоматичне встановлення
+
+# Або завантаження готових бінарників
 wget https://github.com/artem/wg-orbit/releases/latest/download/wg-orbit-linux-arm64.tar.gz
 tar -xzf wg-orbit-linux-arm64.tar.gz
 sudo mv wg-orbit-* /usr/local/bin/
