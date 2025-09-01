@@ -13,6 +13,7 @@ WireGuard Orbit робить WireGuard простим для адміністр�
 - **Підтримка баз даних** — SQLite (за замовчуванням) або PostgreSQL (продакшн)
 - **Моніторинг** — відстеження peer'ів, handshake, online/offline статусу
 - **Docker-ready** — готові образи та Docker Compose конфігурації
+- **Multi-arch підтримка** — ARM64/ARMv7 для Raspberry Pi, Orange Pi та інших мікрокомп'ютерів
 
 ## 🏗️ Архітектура
 
@@ -198,6 +199,40 @@ make docker-run
 # Тести в контейнерах...
 make docker-stop
 ```
+
+## 🔧 Підтримка ARM пристроїв
+
+wg-orbit повністю підтримує ARM архітектури для розгортання на мікрокомп'ютерах:
+
+### Підтримувані пристрої
+- **Raspberry Pi 4/3** (ARM64/ARMv7)
+- **Orange Pi 5/PC** (ARM64/ARMv7) 
+- **NVIDIA Jetson Nano** (ARM64)
+- **Rock Pi 4** (ARM64)
+
+### Швидкий старт на ARM
+
+```bash
+# Docker (рекомендовано)
+docker run -d \
+  --name wg-orbit \
+  --cap-add NET_ADMIN \
+  --restart unless-stopped \
+  -p 8080:8080 \
+  -p 51820:51820/udp \
+  -v wg-orbit-data:/etc/wg-orbit \
+  ghcr.io/artem/wg-orbit:latest
+
+# Нативна збірка
+wget https://github.com/artem/wg-orbit/releases/latest/download/wg-orbit-linux-arm64.tar.gz
+tar -xzf wg-orbit-linux-arm64.tar.gz
+sudo mv wg-orbit-* /usr/local/bin/
+```
+
+### Документація для ARM
+- 📖 [Повний гід по розгортанню на ARM](docs/ARM_DEPLOYMENT.md)
+- 🚀 [Швидкий старт для ARM пристроїв](docs/QUICKSTART_ARM.md)
+- 🐛 [Усунення проблем на ARM](docs/ARM_DEPLOYMENT.md#усунення-проблем)
 
 ## 📋 API Документація
 

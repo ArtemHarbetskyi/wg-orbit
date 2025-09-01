@@ -116,6 +116,10 @@ jobs:
       matrix:
         os: [linux, darwin]
         arch: [amd64, arm64]
+        include:
+          - os: linux
+            arch: arm
+            goarm: "7"
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -148,22 +152,30 @@ jobs:
         
         mkdir -p dist
         
+        # Set GOARM for ARM builds
+        if [ "${{ matrix.arch }}" = "arm" ]; then
+          export GOARM=${{ matrix.goarm }}
+          ARCH_SUFFIX="${{ matrix.arch }}v${{ matrix.goarm }}"
+        else
+          ARCH_SUFFIX="${{ matrix.arch }}"
+        fi
+        
         # Server
         CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
           go build -ldflags "${LDFLAGS}" \
-          -o dist/wg-orbit-server-${{ matrix.os }}-${{ matrix.arch }} \
+          -o dist/wg-orbit-server-${{ matrix.os }}-${ARCH_SUFFIX} \
           ./cmd/server
         
         # Client
         CGO_ENABLED=0 GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} \
           go build -ldflags "${LDFLAGS}" \
-          -o dist/wg-orbit-client-${{ matrix.os }}-${{ matrix.arch }} \
+          -o dist/wg-orbit-client-${{ matrix.os }}-${ARCH_SUFFIX} \
           ./cmd/client
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: binaries-${{ matrix.os }}-${{ matrix.arch }}
+        name: binaries-${{ matrix.os }}-${{ matrix.arch }}${{ matrix.goarm && format('v{0}', matrix.goarm) || '' }}
         path: dist/
 
   # Docker образ
@@ -210,7 +222,7 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         context: .
-        platforms: linux/amd64,linux/arm64
+        platforms: linux/amd64,linux/arm64,linux/arm/v7
         push: true
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
@@ -233,20 +245,17 @@ jobs:
 
     - name: Run integration tests
       run: |
-        # Запуск тестового середовища
-        docker-compose -f docker-compose.yml up -d postgres
-        
-        # Очікування готовності бази
-        sleep 10
-        
-        # Запуск сервера
+        # Запуск сервера (без PostgreSQL, використовуємо SQLite)
         docker-compose -f docker-compose.yml up -d wg-orbit-server
         
         # Очікування готовності сервера
-        sleep 15
+        sleep 30
+        
+        # Перевірка логів сервера для діагностики
+        docker-compose logs wg-orbit-server
         
         # Тестування API
-        curl -f http://localhost:8080/health || exit 1
+        curl -f http://localhost:8080/api/v1/health || exit 1
         
         echo "Integration tests passed!"
 

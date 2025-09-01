@@ -20,11 +20,11 @@ storage:
   database: "/var/lib/wg-orbit/wg-orbit.db"
   
   # PostgreSQL configuration (if type is postgres)
-  # host: "localhost"
+  # host: "postgres"
   # port: 5432
   # username: "wg_orbit"
-  # password: "password"
-  # ssl_mode: "require"
+  # password: "wg_orbit_password"
+  # ssl_mode: "disable"
 
 ipam:
   network: "10.0.0.0/24"

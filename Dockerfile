@@ -1,5 +1,12 @@
-# Multi-stage build для оптимізації розміру образу
-FROM golang:1.23-alpine AS builder
+# Multi-stage build для оптимізації розміру образу з підтримкою multi-arch
+FROM --platform=$BUILDPLATFORM golang:1.23-alpine AS builder
+
+# Аргументи для multi-arch збірки
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+ARG TARGETOS
+ARG TARGETARCH
+ARG TARGETVARIANT
 
 # Встановлюємо необхідні пакети для збірки
 RUN apk add --no-cache git gcc musl-dev
@@ -14,9 +21,11 @@ RUN go mod download
 # Копіюємо вихідний код
 COPY . .
 
-# Збираємо бінарники
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o wg-orbit-server ./cmd/server
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o wg-orbit-client ./cmd/client
+# Збираємо бінарники для цільової архітектури
+RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
+    go build -a -installsuffix cgo -ldflags='-w -s' -o wg-orbit-server ./cmd/server
+RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} GOARM=${TARGETVARIANT#v} \
+    go build -a -installsuffix cgo -ldflags='-w -s' -o wg-orbit-client ./cmd/client
 
 # Фінальний образ
 FROM alpine:latest
